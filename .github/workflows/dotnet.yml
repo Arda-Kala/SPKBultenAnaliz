@@ -1,0 +1,48 @@
+name: .NET Build & Test
+
+# Her 'main' dalına push veya main'e açılan her pull request'te tetiklenir.
+# Kendi ana dal adın farklıysa (örn. "master"), aşağıdaki branches listesini güncelle.
+#
+# NOT: Aşağıdaki yollar, bu .github klasörünün bulunduğu "SPK_Bulten_Analiz"
+# klasörünün GİT REPO KÖKÜ olduğunu varsayar (yani SPKBultenAnaliz.sln repo
+# kökünde). Repo'yu farklı bir klasör yapısıyla (örn. proje bir alt klasördeyse)
+# push edersen, aşağıdaki "SPKBultenAnaliz.sln" ve proje yollarının başına
+# o alt klasör adını eklemen gerekir.
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Kodu indir (checkout)
+        uses: actions/checkout@v4
+
+      - name: .NET 8 SDK kurulumu
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: NuGet paketlerini geri yükle (restore)
+        run: dotnet restore SPKBultenAnaliz.sln
+
+      - name: Derle (build)
+        run: dotnet build SPKBultenAnaliz.sln --no-restore --configuration Release
+
+      - name: Unit testleri çalıştır (test)
+        run: >
+          dotnet test SPKBultenAnaliz.Tests/SPKBultenAnaliz.Tests.csproj
+          --no-build --configuration Release
+          --logger "trx;LogFileName=test-results.trx"
+          --results-directory ./TestResults
+
+      - name: Test sonuçlarını yükle (her zaman, başarısız olsa bile)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ./TestResults

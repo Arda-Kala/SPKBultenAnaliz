@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>SPKBultenAnaliz.API</RootNamespace>
+    <UserSecretsId>b7f2e8b4-9c31-4e6a-9c9a-spkbultenanaliz</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.6.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+
+    <!-- ===================== Loglama (Serilog) ===================== -->
+    <!-- Serilog.AspNetCore: ASP.NET Core'a Serilog'u host olarak bağlayan ana paket
+         (UseSerilog, request logging middleware'i vb. içerir). -->
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+    <!-- Konsola (Docker/systemd loglarında görünmesi için) renkli, yapılandırılmış çıktı. -->
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <!-- Günlük dönen (rolling) .txt/.log dosyasına yazan sink — "sunucuda geriye
+         dönük inceleme" ihtiyacının temel karşılığı. -->
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <!-- appsettings.json üzerinden "Serilog": { ... } bölümüyle yapılandırma okumak için. -->
+    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.4" />
+    <!-- Kritik hataları/olayları SQL Server'daki bir "Logs" tablosuna da yazar
+         (tabloyu ilk çalıştırmada kendi otomatik oluşturur — bkz. appsettings.json). -->
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="6.7.0" />
+    <!-- Log olaylarına otomatik olarak makine adı, ortam adı gibi zenginleştirme (enrichment) eklemek için. -->
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+    <PackageReference Include="Serilog.Enrichers.Process" Version="3.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SPKBultenAnaliz.Core\SPKBultenAnaliz.Core.csproj" />
+    <ProjectReference Include="..\SPKBultenAnaliz.DataAccess\SPKBultenAnaliz.DataAccess.csproj" />
+    <ProjectReference Include="..\SPKBultenAnaliz.Business\SPKBultenAnaliz.Business.csproj" />
+  </ItemGroup>
+
+</Project>
