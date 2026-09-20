@@ -12,6 +12,12 @@
 </div>
 
 ---
+🖥️ Ekran Görüntüleri
+<img width="1894" height="987" alt="Ekran görüntüsü 2026-08-07 120532" src="https://github.com/user-attachments/assets/6085e74e-eb06-48a6-847d-999d584dca85" />
+<img width="1897" height="990" alt="Ekran görüntüsü 2026-08-07 120122" src="https://github.com/user-attachments/assets/1cb0f266-2eda-4bc8-a1ad-4c1fa32c2a7f" />
+
+
+
 
 ## ✨ Özellikler
 
