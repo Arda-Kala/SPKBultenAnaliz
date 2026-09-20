@@ -1,11 +1,43 @@
-# SPK Bülten Özetleme ve Piyasa Etki Analiz Platformu
+<div align="center">
 
-**Google Gemini API destekli — Öğrenme Odaklı Sürüm (v2.0.0)**
+# 📋 SPK Bülten Analiz Platformu
 
-Bu proje, `SPK_Bulten_Analiz_Gemini_Ogrenme_Surumu.docx` dokümanındaki kurumsal
-proje gereksinimlerine uygun olarak hazırlanmış, çalışan bir .NET 8 çözümüdür.
-Sprint 1 (altyapı + chunking), Sprint 2 (Gemini entegrasyonu) ve Sprint 3
-(önbellekleme + dashboard + testler) kapsamındaki tüm ana bileşenleri içerir.
+**SPK (Sermaye Piyasası Kurulu) bültenlerini otomatik indirip Google Gemini AI ile analiz eden ASP.NET Core 8 platformu**
+
+![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=flat-square&logo=dotnet)
+![EF Core](https://img.shields.io/badge/EF_Core-8.0-blue?style=flat-square)
+![Gemini](https://img.shields.io/badge/Gemini-AI-orange?style=flat-square&logo=google)
+![License](https://img.shields.io/badge/lisans-kişisel-gray?style=flat-square)
+
+</div>
+
+---
+
+## ✨ Özellikler
+
+- 📥 **Otomatik Bülten Tarama** — SPK sitesini tarayarak yeni PDF bültenleri çeker
+- 📄 **PDF Metin Çıkarma** — Bültenleri bloklara ayırarak yapılandırılmış metne dönüştürür
+- 🤖 **Gemini AI Analizi** — Her bülteni Gemini API ile özetler, piyasa etkisini değerlendirir
+- ⚡ **Önbellek Katmanı** — Decorator Pattern ile tekrarlayan sorgular önbelleklenir
+- 📊 **Dashboard** — Tüm analizleri görsel olarak listeleyen web arayüzü
+- 🔐 **JWT Kimlik Doğrulama** — Güvenli admin girişi
+- 🧪 **Birim Testleri** — xUnit + Moq ile kritik servisler test edilmiş
+- 📝 **Serilog Loglama** — Console + File + MSSqlServer sink desteği
+
+---
+
+## 🛠️ Teknoloji Yığını
+
+| Katman | Teknoloji |
+|---|---|
+| Backend | ASP.NET Core 8 Web API |
+| ORM | Entity Framework Core 8 |
+| Veritabanı | Microsoft SQL Server |
+| Yapay Zeka | Google Gemini API |
+| Önbellekleme | IMemoryCache + Decorator Pattern |
+| Loglama | Serilog |
+| Test | xUnit + Moq |
+| Auth | JWT Bearer Token |
 
 ---
 
@@ -13,94 +45,90 @@ Sprint 1 (altyapı + chunking), Sprint 2 (Gemini entegrasyonu) ve Sprint 3
 
 ```
 SPKBultenAnaliz.sln
-├── SPKBultenAnaliz.Core          → Entity'ler, DTO'lar, Arayüzler (Interfaces)
+├── SPKBultenAnaliz.Core          → Entity'ler, DTO'lar, Arayüzler
 ├── SPKBultenAnaliz.DataAccess    → EF Core DbContext, Repository'ler, Cache Decorator
 ├── SPKBultenAnaliz.Business      → Scraper, PDF Parser, Gemini Connector, Orkestrasyon
 ├── SPKBultenAnaliz.API           → Web API, Controller, Dashboard (wwwroot)
 └── SPKBultenAnaliz.Tests         → xUnit + Moq birim testleri
 ```
 
-Bağımlılık yönü: **API → Business → DataAccess → Core** (asla tersi değil).
+> Bağımlılık yönü: **API → Business → DataAccess → Core** (asla tersi değil)
 
 ---
 
-## ✅ Ön Koşullar
+## ⚙️ Kurulum
 
-1. **.NET 8 SDK** — https://dotnet.microsoft.com/download/dotnet/8.0
-2. **SQL Server** (LocalDB, Express veya tam sürüm)
-3. **Google Gemini API Anahtarı** — https://aistudio.google.com üzerinden ücretsiz alınabilir
-4. (Opsiyonel) Visual Studio 2022 veya VS Code + C# Dev Kit eklentisi
+### Gereksinimler
 
-Kurulumu doğrulayın:
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [SQL Server Express](https://www.microsoft.com/tr-tr/sql-server/sql-server-downloads) (ücretsiz)
+- [Google Gemini API Anahtarı](https://aistudio.google.com/app/apikey) (ücretsiz)
+
+---
+
+### 1. Repoyu klonla
+
 ```bash
-dotnet --version   # 8.0.x görünmeli
+git clone https://github.com/KULLANICI_ADIN/SPKBultenAnaliz.git
+cd SPKBultenAnaliz/SPK_Bulten_Analiz
 ```
 
 ---
 
-## 🚀 Adım Adım Kurulum
-
-### 1) Bağımlılıkları geri yükleyin (NuGet restore)
-
-```bash
-cd SPK_Bulten_Analiz
-dotnet restore
-```
-
-### 2) Gemini API anahtarını güvenli şekilde tanımlayın
-
-**appsettings.json içine ASLA düz metin olarak yazmayın.** Bunun yerine
-User Secrets kullanın:
-
-```bash
-cd SPKBultenAnaliz.API
-dotnet user-secrets init
-dotnet user-secrets set "Gemini:ApiKey" "AIzaSy...buraya_kendi_anahtariniz..."
-```
-
-### 3) Veritabanı bağlantısını kontrol edin
-
-`SPKBultenAnaliz.API/appsettings.json` içindeki `ConnectionStrings:DefaultConnection`
-değerini kendi SQL Server kurulumunuza göre düzenleyin. Varsayılan değer LocalDB
-içindir ve çoğu Visual Studio kurulumunda değişiklik gerektirmez:
-
-```json
-"DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=SPKBultenDb;Trusted_Connection=true;TrustServerCertificate=true;"
-```
-
-### 4) EF Core aracını kurun (bir kereye mahsus)
+### 2. EF Core CLI yükle
 
 ```bash
 dotnet tool install --global dotnet-ef
 ```
 
-### 5) İlk Migration'ı oluşturun ve veritabanını kurun
+---
+
+### 3. Gizli değerleri ayarla
+
+Bu proje gizli değerleri `appsettings.json` yerine **User Secrets** ile yönetir — hiçbir anahtar git'e gitmez.
 
 ```bash
-cd SPKBultenAnaliz.API
-dotnet ef migrations add InitialCreate --project ../SPKBultenAnaliz.DataAccess --startup-project .
-dotnet ef database update --project ../SPKBultenAnaliz.DataAccess --startup-project .
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" \
+  "Server=(local);Database=SPKBultenDb;Trusted_Connection=True;TrustServerCertificate=True;" \
+  --project SPKBultenAnaliz.API
+
+dotnet user-secrets set "Gemini:ApiKey" "GEMINI_API_ANAHTARIN" \
+  --project SPKBultenAnaliz.API
+
+dotnet user-secrets set "Jwt:Key" "EnAz32KarakterGucluBirSifreGir2026!" \
+  --project SPKBultenAnaliz.API
 ```
 
-Bu komut sonunda `Bultenler`, `BultenMetinBloklari`, `BultenAnalizSonuclari`
-tablolarının oluştuğunu SQL Server Management Studio veya Azure Data Studio
-üzerinden görebilirsiniz.
+> 💡 Gemini API anahtarı almak için → [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
 
-> **Not:** `Program.cs` içinde geliştirme ortamında `db.Database.Migrate()`
-> otomatik çalıştığı için, migration'ı bir kez oluşturduktan sonra `dotnet run`
-> her seferinde veritabanını güncel tutar.
+---
 
-### 6) Projeyi çalıştırın
+### 4. Veritabanını oluştur
+
+```bash
+dotnet ef database update \
+  --project SPKBultenAnaliz.DataAccess \
+  --startup-project SPKBultenAnaliz.API
+```
+
+Başarılı olursa `Bultenler`, `BultenMetinBloklari`, `BultenAnalizSonuclari` tabloları otomatik oluşur.
+
+---
+
+### 5. Çalıştır
 
 ```bash
 dotnet run --project SPKBultenAnaliz.API
 ```
 
-Tarayıcı otomatik olarak Swagger arayüzünü (`/swagger`) açacaktır. Dashboard'u
-görmek için `http://localhost:5080/` adresine gidin (port farklıysa konsol
-çıktısındaki adresi kullanın).
+| Adres | Açıklama |
+|---|---|
+| `http://localhost:5080` | Dashboard |
+| `http://localhost:5080/swagger` | API dokümantasyonu |
 
-### 7) Testleri çalıştırın
+---
+
+### 6. Testleri çalıştır
 
 ```bash
 dotnet test
@@ -108,74 +136,27 @@ dotnet test
 
 ---
 
-## 🧪 Uygulamayı Deneme Senaryosu
+## 🧪 Temel API Endpoint'leri
 
-1. Swagger'dan (veya Dashboard'daki "Yeni Bültenleri Tara" butonundan)
-   `POST /api/bultenler/tara` uç noktasını çağırın.
-   - Bu, `SpkScraperService`'i tetikler ve SPK sitesini tarar.
-   - **Önemli:** `SpkScraperService.cs` içindeki `BultenListesiUrl` ve CSS
-     seçicileri örnek/varsayılan değerlerdir; gerçek SPK sitesinin güncel HTML
-     yapısına göre düzenlenmesi gerekir (dosya içinde bununla ilgili bir
-     Öğrenme Notu bulunmaktadır).
-2. Yeni bülten tespit edilirse, PDF indirilir → metne çevrilir → bloklara
-   ayrılır → Gemini API'ye gönderilir → sonuç veritabanına yazılır.
-3. `GET /api/bultenler` ile tüm bültenlerin özetini, `GET /api/bultenler/{id}`
-   ile tek bir bültenin detayını görebilirsiniz.
-4. Bir analiz başarısız olursa (`DogrulamaBekleniyor` durumu), o bülten için
-   `POST /api/bultenler/{id}/analiz` ile yeniden analiz tetikleyebilirsiniz.
+| Method | Endpoint | Açıklama |
+|---|---|---|
+| `POST` | `/api/bultenler/tara` | SPK sitesini tara, yeni bültenleri çek |
+| `GET` | `/api/bultenler` | Tüm bültenlerin listesi |
+| `GET` | `/api/bultenler/{id}` | Tek bülten detayı |
+| `POST` | `/api/bultenler/{id}/analiz` | Başarısız analizi yeniden tetikle |
 
 ---
 
-## 🎓 Bu Projeyi Nasıl Öğrenerek İncelemeli?
+## 🔒 Güvenlik
 
-Önerilen okuma sırası (Faz 1 → Faz 2 → Faz 3 mantığına uygun):
+- `appsettings.json` içinde **hiçbir gizli değer yoktur** — tümü boş bırakılmıştır
+- Tüm sırlar geliştirmede **User Secrets**, production'da **Environment Variables** ile sağlanır
+- `secrets.json`, `logs/`, `bin/`, `obj/`, `.vs/` git'e gitmez
 
-1. `SPKBultenAnaliz.Core/Entities/*.cs` — Veri modelini anlayın.
-2. `SPKBultenAnaliz.Core/Interfaces/*.cs` — Her katmanın "sözleşmesini" okuyun.
-3. `SPKBultenAnaliz.DataAccess/BultenDbContext.cs` — EF Core'un tabloları nasıl
-   oluşturduğunu inceleyin.
-4. `SPKBultenAnaliz.DataAccess/Repositories/EfBultenRepository.cs` — Somut
-   veri erişim mantığı.
-5. `SPKBultenAnaliz.Business/Services/PdfParserService.cs` — Chunking
-   algoritmasını inceleyin, ardından `SPKBultenAnaliz.Tests/PdfParserServiceTests.cs`
-   dosyasındaki testleri çalıştırıp anlayın.
-6. `SPKBultenAnaliz.Business/Services/GeminiApiConnector.cs` — Harici bir API'ye
-   nasıl güvenli (retry, timeout, hata yönetimi) bağlanılacağını inceleyin.
-7. `SPKBultenAnaliz.Business/Services/BultenService.cs` — Tüm parçaların nasıl
-   bir araya geldiğini (orkestrasyon) görün.
-8. `SPKBultenAnaliz.API/Program.cs` — Dependency Injection kayıtlarının
-   tümünün nasıl birbirine bağlandığını inceleyin.
-9. `SPKBultenAnaliz.DataAccess/Repositories/CachedBultenRepository.cs` —
-   Decorator Pattern ile önbellekleme örneğini inceleyin (Sprint 3).
-
-Her dosyada `ÖĞRENME NOTU` veya açıklayıcı XML yorumları (`///`) bulacaksınız —
-bunlar "neden böyle yazıldığını" açıklamak için bilhassa eklenmiştir.
+Güvenlik açığı bildirimi için [SECURITY.md](.github/SECURITY.md) dosyasına bakın.
 
 ---
 
-## 🔧 Sırada Ne Var? (Henüz Yapılmayanlar)
+## 📄 Lisans
 
-Bu iskelet, dokümandaki tüm Sprint'lerin temel yapı taşlarını içerir; ancak
-gerçek bir üretim sistemine dönüştürmek için şunları kendiniz tamamlamalısınız:
-
-- `SpkScraperService.cs` içindeki CSS seçicilerini gerçek SPK sitesine göre
-  güncellemek (Use Case 1.2).
-- `BultenService.BulteniAnalizEtAsync` içinde, çok bloklu bültenlerde her
-  bloğu ayrı ayrı analiz edip sonuçları birleştirme mantığını geliştirmek
-  (şu an öğretici sadelik için bloklar birleştirilip tek istekte gönderiliyor).
-- Dashboard'a tarih filtresi, sayfalama (pagination) eklemek.
-- `dotnet ef migrations add InitialCreate` komutunu çalıştırarak gerçek
-  migration dosyalarını üretmek (bu repo'da migration dosyaları kasıtlı
-  olarak boş bırakılmıştır; sizin ortamınızda üretilmesi gerekir).
-
-Bu adımların her biri, dokümandaki ilgili Use Case'e karşılık gelir — sırayla
-ilerlemeniz önerilir.
-
----
-
-## 📄 İlgili Doküman
-
-Bu kod tabanı, `SPK_Bulten_Analiz_Gemini_Ogrenme_Surumu.docx` içindeki
-mimari, veri şeması ve sprint planına birebir uygun olarak yazılmıştır.
-Herhangi bir tasarım kararının "neden"ini merak ederseniz, önce ilgili
-dokümandaki bölüme, sonra kod içindeki `ÖĞRENME NOTU` yorumlarına bakın.
+Bu proje kişisel / eğitim amaçlıdır.
